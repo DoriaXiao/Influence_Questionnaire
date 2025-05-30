@@ -4,9 +4,10 @@
 
 import streamlit as st
 import pandas as pd
-from datetime import date
+from datetime import date, datetime
 import os
 import requests
+import json
 
 st.set_page_config(page_title="Influence Scoring App", layout="wide")
 st.markdown("""
@@ -101,7 +102,12 @@ def page_values():
 def submit_to_google_sheet(data):
     SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
     try:
-        response = requests.post(SHEET_URL, json=data)
+        # Convert date objects to string
+        serializable_data = {
+            k: (v.isoformat() if isinstance(v, (date, datetime)) else v)
+            for k, v in data.items()
+        }
+        response = requests.post(SHEET_URL, json=serializable_data)
         if response.status_code == 200:
             return True
         else:
