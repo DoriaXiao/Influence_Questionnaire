@@ -6,6 +6,7 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import os
+import requests
 
 st.set_page_config(page_title="Influence Scoring App", layout="wide")
 st.markdown("""
@@ -96,13 +97,18 @@ def page_values():
     if st.button("Next: Summary"):
         next_page()
 
-# --- Save to CSV ---
-def save_to_csv(entry, path="responses.csv"):
-    df = pd.DataFrame([entry])
-    if not os.path.exists(path):
-        df.to_csv(path, index=False)
-    else:
-        df.to_csv(path, mode='a', header=False, index=False)
+# --- Submit to Google Sheet ---
+def submit_to_google_sheet(data):
+    SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
+    try:
+        response = requests.post(SHEET_URL, json=data)
+        if response.status_code == 200:
+            return True
+        else:
+            st.warning(f"⚠️ Failed to submit to Google Sheet. Status: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Error: {e}")
+    return False
 
 # --- Page: Summary ---
 def page_summary():
@@ -113,8 +119,11 @@ def page_summary():
 
     if st.button("Submit"):
         st.session_state.responses.append(sample)
-        save_to_csv(sample)  # persist to CSV
-        st.success("Sample submitted! You can now score a new sample.")
+        submitted = submit_to_google_sheet(sample)
+        if submitted:
+            st.success("Sample submitted to Google Sheet!")
+        else:
+            st.error("Submission failed.")
         st.session_state.page = 'sample_info'
 
 # --- Page Routing ---
