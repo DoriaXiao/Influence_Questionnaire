@@ -1,10 +1,11 @@
 # influence_scoring_app.py
-# Note: This script requires the 'streamlit' package.
-# Run the app locally using: `streamlit run influence_scoring_app.py`
+# Run this app with: streamlit run influence_scoring_app.py
+# Deploy it on Streamlit Cloud by pushing to GitHub and connecting your repo at https://streamlit.io/cloud
 
 import streamlit as st
 import pandas as pd
 from datetime import date
+import os
 
 st.set_page_config(page_title="Influence Scoring App", layout="wide")
 st.markdown("""
@@ -27,9 +28,6 @@ def next_page():
     idx = pages.index(st.session_state.page)
     if idx < len(pages) - 1:
         st.session_state.page = pages[idx + 1]
-
-def go_to_page(name):
-    st.session_state.page = name
 
 # --- Page: Login ---
 def page_login():
@@ -98,6 +96,14 @@ def page_values():
     if st.button("Next: Summary"):
         next_page()
 
+# --- Save to CSV ---
+def save_to_csv(entry, path="responses.csv"):
+    df = pd.DataFrame([entry])
+    if not os.path.exists(path):
+        df.to_csv(path, index=False)
+    else:
+        df.to_csv(path, mode='a', header=False, index=False)
+
 # --- Page: Summary ---
 def page_summary():
     st.title("📊 Submission Summary")
@@ -107,6 +113,7 @@ def page_summary():
 
     if st.button("Submit"):
         st.session_state.responses.append(sample)
+        save_to_csv(sample)  # persist to CSV
         st.success("Sample submitted! You can now score a new sample.")
         st.session_state.page = 'sample_info'
 
@@ -125,4 +132,3 @@ elif st.session_state.page == 'values':
     page_values()
 elif st.session_state.page == 'summary':
     page_summary()
-
