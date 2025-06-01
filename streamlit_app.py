@@ -235,7 +235,6 @@ def page_summary():
 # --- Handle restart request ---
 if st.session_state.get('restart_requested', False):
     restart_sequence()
-    st.experimental_rerun()
 
 # --- Page: Thank You ---
 def page_thank_you():
