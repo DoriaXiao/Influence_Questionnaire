@@ -249,7 +249,7 @@ def page_summary():
 # --- Handle restart request ---
 if st.session_state.get('restart_requested', False):
     restart_sequence()
-    st.experimental_rerun()
+    raise st.script_runner.RerunException(st.script_request_queue.RerunData(None))
 
 # --- Page: Thank You ---
 def page_thank_you():
