@@ -40,6 +40,26 @@ if 'restart_requested' not in st.session_state:
     st.session_state.restart_requested = False
 
 # --- Navigation ---
+def show_progress():
+    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
+    progress_labels = {
+        "login": 0, "sample_info": 1, "reach": 2,
+        "salience": 3, "discursiveness": 4, "values": 5, "summary": 6
+    }
+    current = progress_labels.get(st.session_state.page, 0)
+    st.progress((current + 1) / len(pages))
+
+def next_page():
+    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
+    idx = pages.index(st.session_state.page)
+    if idx < len(pages) - 1:
+        st.session_state.page = pages[idx + 1]
+
+def prev_page():
+    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
+    idx = pages.index(st.session_state.page)
+    if idx > 0:
+        st.session_state.page = pages[idx - 1]
 def next_page():
     pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
     idx = pages.index(st.session_state.page)
@@ -174,21 +194,21 @@ def page_values():
         st.session_state.sample[value + "_justification"] = st.text_area(f"Justify {value}", key=value+'_txt')
 
     if st.button("Next: Summary"):
-        for value in [
-            "Common Concern", "Aired Arenas", "Pluralism", "Truth",
-            "Civility", "Equal Opportunity", "Efficacy"]:
-            if not st.session_state.sample[value + "_justification"].strip():
-                st.warning(f"Justification for '{value}' is required.")
-                valid = False
-                break
-        if valid:
+        # for value in [
+        #     "Common Concern", "Aired Arenas", "Pluralism", "Truth",
+        #     "Civility", "Equal Opportunity", "Efficacy"]:
+        #     if not st.session_state.sample[value + "_justification"].strip():
+        #         st.warning(f"Justification for '{value}' is required.")
+        #         valid = False
+        #         break
+        # if valid:
             next_page()
     
 
 # --- Submit to Google Sheet ---
 def submit_to_google_sheet(data):
     SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
-    try:
+       try:
         serializable_data = {
             k: (v.isoformat() if isinstance(v, (date, datetime)) else v)
             for k, v in data.items()
@@ -201,6 +221,7 @@ def submit_to_google_sheet(data):
 
 # --- Page: Summary ---
 def page_summary():
+    show_progress()
     st.markdown("""
     ### ✅ All done with this media sample!
 
@@ -231,7 +252,6 @@ def page_summary():
                 st.session_state.page = 'thank_you'
                 st.session_state.submitted_flag = False
 
-
 # --- Handle restart request ---
 if st.session_state.get('restart_requested', False):
     restart_sequence()
@@ -249,6 +269,7 @@ def page_thank_you():
     """)
 
 # --- Page Routing ---
+show_progress()
 if st.session_state.page == 'login':
     page_login()
 elif st.session_state.page == 'sample_info':
@@ -261,11 +282,6 @@ elif st.session_state.page == 'discursiveness':
     page_discursiveness()
 elif st.session_state.page == 'values':
     page_values()
-elif st.session_state.page == 'summary':
-    page_summary()
-elif st.session_state.page == 'thank_you':
-    page_thank_you()
-
 
 
 
