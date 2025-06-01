@@ -36,6 +36,9 @@ if 'page' not in st.session_state:
 if 'responses' not in st.session_state:
     st.session_state.responses = []
 
+if 'restart_requested' not in st.session_state:
+    st.session_state.restart_requested = False
+
 # --- Navigation ---
 def next_page():
     pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
@@ -46,6 +49,7 @@ def next_page():
 def restart_sequence():
     st.session_state.page = 'sample_info'
     st.session_state.sample = {}
+    st.session_state.restart_requested = False
 
 # --- Page: Login ---
 def page_login():
@@ -179,6 +183,7 @@ def page_values():
                 break
         if valid:
             next_page()
+    
 
 # --- Submit to Google Sheet ---
 def submit_to_google_sheet(data):
@@ -198,9 +203,9 @@ def submit_to_google_sheet(data):
 def page_summary():
     st.markdown("""
     ### ✅ All done with this media sample!
-    
+
     If you're ready, please continue by evaluating another sample. Click the button below and enter the next piece of content you’ve been assigned.
-    
+
     🔁 This helps ensure consistent scoring across your assigned set.
     """)
     st.title("📊 Submission Summary")
@@ -213,15 +218,18 @@ def page_summary():
         submitted = submit_to_google_sheet(sample)
         if submitted:
             st.success("Sample submitted to Google Sheet!")
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("✅ Evaluate Another Sample"):
-                    st.session_state.restart_requested = True
-            with col2:
-                if st.button("🚪 I’ve Completed All My Samples"):
-                    st.session_state.page = 'thank_you'
-        else:
-            st.error("Submission failed.")
+            st.session_state.submitted_flag = True
+
+    if st.session_state.get("submitted_flag"):
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅ Evaluate Another Sample"):
+                st.session_state.restart_requested = True
+                st.session_state.submitted_flag = False
+        with col2:
+            if st.button("🚪 I’ve Completed All My Samples"):
+                st.session_state.page = 'thank_you'
+                st.session_state.submitted_flag = False
 
 # --- Handle restart request ---
 if st.session_state.get('restart_requested', False):
@@ -255,5 +263,6 @@ elif st.session_state.page == 'summary':
     page_summary()
 elif st.session_state.page == 'thank_you':
     page_thank_you()
+
 
 
