@@ -14,7 +14,19 @@ st.set_page_config(page_title="Influence Scoring App", layout="wide")
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap');
-html, body, [class*='css']  { font-family: 'Lato', sans-serif; }
+html, body, [class*='css']  {
+    font-family: 'Lato', sans-serif;
+    background-color: #f5f7fa;
+    color: #1a1a1a;
+}
+.block-container {
+    padding: 2rem 2rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    max-width: 900px;
+    margin: auto;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -30,6 +42,10 @@ def next_page():
     idx = pages.index(st.session_state.page)
     if idx < len(pages) - 1:
         st.session_state.page = pages[idx + 1]
+
+def restart_sequence():
+    st.session_state.page = 'sample_info'
+    st.session_state.sample = {}
 
 # --- Page: Login ---
 def page_login():
@@ -168,22 +184,25 @@ def page_values():
 def submit_to_google_sheet(data):
     SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
     try:
-        # Convert date objects to string
         serializable_data = {
             k: (v.isoformat() if isinstance(v, (date, datetime)) else v)
             for k, v in data.items()
         }
         response = requests.post(SHEET_URL, json=serializable_data)
-        if response.status_code == 200:
-            return True
-        else:
-            st.warning(f"⚠️ Failed to submit to Google Sheet. Status: {response.status_code}")
+        return response.status_code == 200
     except Exception as e:
         st.error(f"❌ Error: {e}")
-    return False
+        return False
 
 # --- Page: Summary ---
 def page_summary():
+    st.markdown("""
+    ### ✅ All done with this media sample!
+    
+    If you're ready, please continue by evaluating another sample. Click the button below and enter the next piece of content you’ve been assigned.
+    
+    🔁 This helps ensure consistent scoring across your assigned set.
+    """)
     st.title("📊 Submission Summary")
     sample = st.session_state.sample
     sample["researcher"] = st.session_state.researcher
@@ -194,9 +213,16 @@ def page_summary():
         submitted = submit_to_google_sheet(sample)
         if submitted:
             st.success("Sample submitted to Google Sheet!")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("✅ Evaluate Another Sample"):
+                    restart_sequence()
+            with col2:
+                if st.button("🚪 I’ve Completed All My Samples"):
+                    st.markdown("### 🎉 Thank you!
+Your submissions are complete. You may now close this tab.")
         else:
             st.error("Submission failed.")
-        st.session_state.page = 'sample_info'
 
 # --- Page Routing ---
 if st.session_state.page == 'login':
@@ -213,3 +239,4 @@ elif st.session_state.page == 'values':
     page_values()
 elif st.session_state.page == 'summary':
     page_summary()
+
