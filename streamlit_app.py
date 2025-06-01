@@ -49,11 +49,7 @@ def show_progress():
     current = progress_labels.get(st.session_state.page, 0)
     st.progress((current + 1) / len(pages))
 
-def next_page():
-    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
-    idx = pages.index(st.session_state.page)
-    if idx < len(pages) - 1:
-        st.session_state.page = pages[idx + 1]
+
 
 def prev_page():
     pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
@@ -282,6 +278,9 @@ elif st.session_state.page == 'discursiveness':
     page_discursiveness()
 elif st.session_state.page == 'values':
     page_values()
-
+elif st.session_state.page == 'summary':
+    page_summary()
+elif st.session_state.page == 'thank_you':
+    page_thank_you()
 
 
