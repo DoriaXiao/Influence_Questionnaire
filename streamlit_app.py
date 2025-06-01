@@ -219,8 +219,10 @@ def page_summary():
                     restart_sequence()
             with col2:
                 if st.button("🚪 I’ve Completed All My Samples"):
-                    st.markdown("### 🎉 Thank you!
-Your submissions are complete. You may now close this tab.")
+                    st.markdown("""
+### 🎉 Thank you!
+Your submissions are complete. You may now close this tab.
+""")
         else:
             st.error("Submission failed.")
 
@@ -239,4 +241,5 @@ elif st.session_state.page == 'values':
     page_values()
 elif st.session_state.page == 'summary':
     page_summary()
+
 
