@@ -40,6 +40,22 @@ if 'restart_requested' not in st.session_state:
     st.session_state.restart_requested = False
 
 # --- Navigation ---
+def show_progress():
+    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
+    progress_labels = {
+        "login": 0, "sample_info": 1, "reach": 2,
+        "salience": 3, "discursiveness": 4, "values": 5, "summary": 6
+    }
+    current = progress_labels.get(st.session_state.page, 0)
+    st.progress((current + 1) / len(pages))
+
+
+
+def prev_page():
+    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
+    idx = pages.index(st.session_state.page)
+    if idx > 0:
+        st.session_state.page = pages[idx - 1]
 def next_page():
     pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
     idx = pages.index(st.session_state.page)
