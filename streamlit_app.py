@@ -34,6 +34,20 @@ def next_page():
 # --- Page: Login ---
 def page_login():
     st.title("🔐 Researcher Login")
+    st.markdown("""
+    Welcome to the **Tunisia Media Influence Scoring Questionnaire**.
+    
+    This form is part of the *Public Sphere Index* initiative. You’ll assess each media sample using your own informed judgment — no specific data or research is required.
+
+    You’ll evaluate:
+    - **Reach** – How widely was this sample seen or shared?
+    - **Salience** – How well does it reflect Tunisia’s top public concerns?
+    - **Discursiveness** – Does it use reasoning, emotion, or credibility to persuade?
+
+    **Score each dimension from 0 to 100.**
+    
+    🟢 *There are no right or wrong answers. Your thoughtful judgment is what matters most.*
+    """)
     name = st.text_input("Your Name")
     email = st.text_input("Your Email")
     if st.button("Continue"):
@@ -62,6 +76,14 @@ def page_sample_info():
 # --- Page: Reach ---
 def page_reach():
     st.title("📡 Reach")
+    st.markdown("""
+    **Reach** estimates how widely the sample was encountered — not just in raw numbers, but in visibility and amplification.
+
+    Ask yourself:
+    - Was it broadcast nationally?
+    - Was it viral on social media?
+    - Was the platform or speaker well-known?
+    """)
     st.session_state.sample.update({
         "reach_score": st.slider("Reach Score (1–100)", 0, 100, 50),
         "reach_justification": st.text_area("Justify your Reach score")
@@ -75,6 +97,14 @@ def page_reach():
 # --- Page: Salience ---
 def page_salience():
     st.title("🔥 Salience")
+    st.markdown("""
+    **Salience** measures how well the content reflects key public concerns in Tunisia today.
+
+    Think about:
+    - Which issues were addressed?
+    - How central were they?
+    - Was the coverage superficial or in-depth?
+    """)
     st.session_state.sample.update({
         "salience_score": st.slider("Salience Score (1–100)", 0, 100, 50),
         "salience_justification": st.text_area("Justify your Salience score")
@@ -88,6 +118,12 @@ def page_salience():
 # --- Page: Discursiveness ---
 def page_discursiveness():
     st.title("🧠 Discursiveness")
+    st.markdown("""
+    **Discursiveness** is about how the content attempts to influence opinion through:
+    - **Logos**: reasoning, evidence, and structure
+    - **Pathos**: emotional appeal (e.g., empathy, fear, pride)
+    - **Ethos**: the credibility or authority of the speaker/platform
+    """)
     st.session_state.sample.update({
         "logos_score": st.slider("Logos (Reasoning) Score", 0, 100, 50),
         "logos_justification": st.text_area("Justify Logos score"),
@@ -105,6 +141,7 @@ def page_discursiveness():
             st.warning("All three justifications (Logos, Pathos, Ethos) are required.")
         else:
             next_page()
+
 
 # --- Page: Values ---
 def page_values():
