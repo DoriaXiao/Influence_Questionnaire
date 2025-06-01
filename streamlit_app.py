@@ -216,15 +216,27 @@ def page_summary():
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("✅ Evaluate Another Sample"):
-                    restart_sequence()
+                    st.session_state.restart_requested = True
             with col2:
                 if st.button("🚪 I’ve Completed All My Samples"):
-                    st.markdown("""
-### 🎉 Thank you!
-Your submissions are complete. You may now close this tab.
-""")
+                    st.session_state.page = 'thank_you'
         else:
             st.error("Submission failed.")
+
+# --- Handle restart request ---
+if st.session_state.get('restart_requested', False):
+    restart_sequence()
+
+# --- Page: Thank You ---
+def page_thank_you():
+    st.title("🎉 Thank you for your contributions!")
+    st.markdown("""
+    We truly appreciate your thoughtful analysis and time. Your responses have been recorded.
+
+    If you have any questions or would like to follow up, please contact the research team.
+
+    ✅ You may now close this tab or exit the application.
+    """)
 
 # --- Page Routing ---
 if st.session_state.page == 'login':
@@ -241,5 +253,7 @@ elif st.session_state.page == 'values':
     page_values()
 elif st.session_state.page == 'summary':
     page_summary()
+elif st.session_state.page == 'thank_you':
+    page_thank_you()
 
 
