@@ -1,6 +1,7 @@
 # influence_scoring_app.py
 # Run this app with: streamlit run influence_scoring_app.py
 # Deploy it on Streamlit Cloud by pushing to GitHub and connecting your repo at https://streamlit.io/cloud
+# SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
 
 import streamlit as st
 import pandas as pd
@@ -17,7 +18,6 @@ html, body, [class*='css']  { font-family: 'Lato', sans-serif; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Session State Initialization ---
 if 'page' not in st.session_state:
     st.session_state.page = 'login'
 
@@ -36,9 +36,12 @@ def page_login():
     st.title("🔐 Researcher Login")
     name = st.text_input("Your Name")
     email = st.text_input("Your Email")
-    if st.button("Continue") and name and email:
-        st.session_state.researcher = {"name": name, "email": email}
-        st.session_state.page = 'sample_info'
+    if st.button("Continue"):
+        if name.strip() == "" or email.strip() == "":
+            st.warning("Both name and email are required.")
+        else:
+            st.session_state.researcher = {"name": name, "email": email}
+            st.session_state.page = 'sample_info'
 
 # --- Page: Sample Info ---
 def page_sample_info():
@@ -51,7 +54,10 @@ def page_sample_info():
         "date": st.date_input("Air/Publication Date", min_value=date(2024, 1, 1))
     }
     if st.button("Next: Reach"):
-        next_page()
+        if not st.session_state.sample["title"].strip() or not st.session_state.sample["platform"].strip():
+            st.warning("Media title and platform are required.")
+        else:
+            next_page()
 
 # --- Page: Reach ---
 def page_reach():
@@ -61,7 +67,10 @@ def page_reach():
         "reach_justification": st.text_area("Justify your Reach score")
     })
     if st.button("Next: Salience"):
-        next_page()
+        if not st.session_state.sample["reach_justification"].strip():
+            st.warning("Please justify the Reach score.")
+        else:
+            next_page()
 
 # --- Page: Salience ---
 def page_salience():
@@ -71,7 +80,10 @@ def page_salience():
         "salience_justification": st.text_area("Justify your Salience score")
     })
     if st.button("Next: Discursiveness"):
-        next_page()
+        if not st.session_state.sample["salience_justification"].strip():
+            st.warning("Please justify the Salience score.")
+        else:
+            next_page()
 
 # --- Page: Discursiveness ---
 def page_discursiveness():
@@ -85,18 +97,35 @@ def page_discursiveness():
         "ethos_justification": st.text_area("Justify Ethos score")
     })
     if st.button("Next: Democratic Values"):
-        next_page()
+        if not all([
+            st.session_state.sample["logos_justification"].strip(),
+            st.session_state.sample["pathos_justification"].strip(),
+            st.session_state.sample["ethos_justification"].strip()
+        ]):
+            st.warning("All three justifications (Logos, Pathos, Ethos) are required.")
+        else:
+            next_page()
 
 # --- Page: Values ---
 def page_values():
     st.title("🏛️ Democratic Values (Score + Justification)")
+    valid = True
     for value in [
         "Common Concern", "Aired Arenas", "Pluralism", "Truth",
         "Civility", "Equal Opportunity", "Efficacy"]:
         st.session_state.sample[value + "_score"] = st.slider(f"{value} Score", 0, 100, 50, key=value)
         st.session_state.sample[value + "_justification"] = st.text_area(f"Justify {value}", key=value+'_txt')
+
     if st.button("Next: Summary"):
-        next_page()
+        for value in [
+            "Common Concern", "Aired Arenas", "Pluralism", "Truth",
+            "Civility", "Equal Opportunity", "Efficacy"]:
+            if not st.session_state.sample[value + "_justification"].strip():
+                st.warning(f"Justification for '{value}' is required.")
+                valid = False
+                break
+        if valid:
+            next_page()
 
 # --- Submit to Google Sheet ---
 def submit_to_google_sheet(data):
