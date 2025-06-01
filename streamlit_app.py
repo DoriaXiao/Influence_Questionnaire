@@ -200,11 +200,10 @@ def page_values():
         # if valid:
             next_page()
     
-
 # --- Submit to Google Sheet ---
 def submit_to_google_sheet(data):
     SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
-       try:
+    try:
         serializable_data = {
             k: (v.isoformat() if isinstance(v, (date, datetime)) else v)
             for k, v in data.items()
@@ -214,7 +213,6 @@ def submit_to_google_sheet(data):
     except Exception as e:
         st.error(f"❌ Error: {e}")
         return False
-
 # --- Page: Summary ---
 def page_summary():
     show_progress()
