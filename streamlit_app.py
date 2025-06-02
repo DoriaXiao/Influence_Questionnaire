@@ -72,7 +72,7 @@ def page_login():
     st.title("🔐 Researcher Login")
     st.markdown("""
     Welcome to the **Tunisia Media Influence Scoring Questionnaire**.
-    
+
     This form is part of the *Public Sphere Index* initiative. You’ll assess each media sample using your own informed judgment — no specific data or research is required.
 
     You’ll evaluate:
@@ -81,8 +81,10 @@ def page_login():
     - **Discursiveness** – Does it use reasoning, emotion, or credibility to persuade?
 
     **Score each dimension from 0 to 100.**
-    
+
     🟢 *There are no right or wrong answers. Your thoughtful judgment is what matters most.*
+
+    🔁 *Note:* In order to proceed to the next step for each page/section, please click each button **twice quickly** to advance.
     """)
     name = st.text_input("Your Name")
     email = st.text_input("Your Email")
@@ -92,9 +94,7 @@ def page_login():
         else:
             st.session_state.researcher = {"name": name, "email": email}
             st.session_state.page = 'sample_info'
-            st.experimental_rerun()
-        
-            
+
 # --- Page: Sample Info ---
 def page_sample_info():
     st.title("🎯 Sample Information")
@@ -109,7 +109,7 @@ def page_sample_info():
         if not st.session_state.sample["title"].strip() or not st.session_state.sample["platform"].strip():
             st.warning("Media title and platform are required.")
         else:
-            next_page()  # already calls st.experimental_rerun()
+            next_page()
 
 # --- Page: Reach ---
 def page_reach():
@@ -245,7 +245,6 @@ def page_summary():
             st.markdown(f"📝 *{label} Justification*: {value}")
 
 
-
     if st.button("Submit"):
         st.session_state.responses.append(sample)
         submitted = submit_to_google_sheet(sample)
@@ -259,12 +258,10 @@ def page_summary():
             if st.button("✅ Evaluate Another Sample"):
                 st.session_state.restart_requested = True
                 st.session_state.submitted_flag = False
-                st.experimental_rerun()
         with col2:
             if st.button("🚪 I’ve Completed All My Samples"):
                 st.session_state.page = 'thank_you'
                 st.session_state.submitted_flag = False
-                st.experimental_rerun()
 
 
 # --- Handle restart request ---
