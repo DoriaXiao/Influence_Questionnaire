@@ -106,10 +106,10 @@ def page_sample_info():
         "date": st.date_input("Air/Publication Date", min_value=date(2024, 1, 1))
     }
     if st.button("Next: Reach"):
-    if not st.session_state.sample["title"].strip() or not st.session_state.sample["platform"].strip():
-        st.warning("Media title and platform are required.")
-    else:
-        next_page()  # already calls st.experimental_rerun()
+        if not st.session_state.sample["title"].strip() or not st.session_state.sample["platform"].strip():
+            st.warning("Media title and platform are required.")
+        else:
+            next_page()  # already calls st.experimental_rerun()
 
 # --- Page: Reach ---
 def page_reach():
