@@ -87,12 +87,14 @@ def page_login():
     name = st.text_input("Your Name")
     email = st.text_input("Your Email")
     if st.button("Continue"):
-        if name.strip() == "" or email.strip() == "":
-            st.warning("Both name and email are required.")
-        else:
-            st.session_state.researcher = {"name": name, "email": email}
-            st.session_state.page = 'sample_info'
-
+    if name.strip() == "" or email.strip() == "":
+        st.warning("Both name and email are required.")
+    else:
+        st.session_state.researcher = {"name": name, "email": email}
+        st.session_state.page = 'sample_info'
+        st.experimental_rerun()
+        
+            
 # --- Page: Sample Info ---
 def page_sample_info():
     st.title("🎯 Sample Information")
@@ -103,11 +105,11 @@ def page_sample_info():
         "transcript": st.text_area("Transcript (paste here if available)"),
         "date": st.date_input("Air/Publication Date", min_value=date(2024, 1, 1))
     }
-    if st.button("Next: Reach"):
-        if not st.session_state.sample["title"].strip() or not st.session_state.sample["platform"].strip():
-            st.warning("Media title and platform are required.")
-        else:
-            next_page()
+    if st.button("✅ Evaluate Another Sample")::
+    if not st.session_state.sample["title"].strip() or not st.session_state.sample["platform"].strip():
+        st.warning("Media title and platform are required.")
+    else:
+        next_page()  # already calls st.experimental_rerun()
 
 # --- Page: Reach ---
 def page_reach():
@@ -227,7 +229,22 @@ def page_summary():
     st.title("📊 Submission Summary")
     sample = st.session_state.sample
     sample["researcher"] = st.session_state.researcher
-    st.write(sample)
+    st.markdown("#### Researcher Info")
+    st.text(f"Name: {sample['researcher']['name']}")
+    st.text(f"Email: {sample['researcher']['email']}")
+    
+    st.markdown("#### Scores & Justifications")
+    for key, value in sample.items():
+        if key == "researcher":
+            continue
+            if "_score" in key:
+                label = key.replace("_score", "").replace("_", " ").title()
+                st.markdown(f"**{label}**: {value}")
+                elif "_justification" in key:
+                    label = key.replace("_justification", "").replace("_", " ").title()
+                    st.markdown(f"📝 *{label} Justification*: {value}")
+
+
 
     if st.button("Submit"):
         st.session_state.responses.append(sample)
@@ -242,10 +259,12 @@ def page_summary():
             if st.button("✅ Evaluate Another Sample"):
                 st.session_state.restart_requested = True
                 st.session_state.submitted_flag = False
+                st.experimental_rerun()
         with col2:
             if st.button("🚪 I’ve Completed All My Samples"):
                 st.session_state.page = 'thank_you'
                 st.session_state.submitted_flag = False
+                st.experimental_rerun()
 
 
 # --- Handle restart request ---
