@@ -56,20 +56,18 @@ def show_progress():
     st.markdown(f"#### Step {current + 1} of {total}: {step_labels[st.session_state.page]}")
     st.progress((current + 1) / total)
 
+PAGE_ORDER = ["login", "sample_info", "reach", "salience", "discursiveness", "summary"]
 
-
-
+def next_page():
+    idx = PAGE_ORDER.index(st.session_state.page)
+    if idx < len(PAGE_ORDER) - 1:
+        st.session_state.page = PAGE_ORDER[idx + 1]
 
 def prev_page():
-    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
-    idx = pages.index(st.session_state.page)
+    idx = PAGE_ORDER.index(st.session_state.page)
     if idx > 0:
-        st.session_state.page = pages[idx - 1]
-def next_page():
-    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
-    idx = pages.index(st.session_state.page)
-    if idx < len(pages) - 1:
-        st.session_state.page = pages[idx + 1]
+        st.session_state.page = PAGE_ORDER[idx - 1]
+
 
 def restart_sequence():
     for key in ["sample", "submitted_flag"]:
