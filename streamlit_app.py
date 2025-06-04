@@ -3,7 +3,9 @@
 # Deploy it on Streamlit Cloud by pushing to GitHub and connecting your repo at https://streamlit.io/cloud
 # SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
 
-pip install streamlit-authenticator
+!pip install streamlit-authenticator
+
+from streamlit_authenticator import Hasher, Authenticate
 
 import streamlit as st
 import pandas as pd
