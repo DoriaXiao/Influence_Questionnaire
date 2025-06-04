@@ -9,12 +9,13 @@ from datetime import date, datetime
 import os
 import requests
 import json
+
+st.set_page_config(page_title="Influence Scoring App", layout="wide")
 # --- Safe rerun redirect (called early) ---
 if 'force_rerun_from' in st.session_state:
     del st.session_state['force_rerun_from']
     st.experimental_rerun()
 
-st.set_page_config(page_title="Influence Scoring App", layout="wide")
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap');
@@ -327,12 +328,6 @@ def page_thank_you():
 
     ✅ You may now close this tab or exit the application.
     """)
-# --- Safe rerun trigger ---
-if st.session_state.get("do_rerun", False):
-    st.session_state.do_rerun = False
-    st.experimental_rerun()
-    st.stop()  # 🔒 prevent further execution after rerun
-
 
 # --- Page Routing ---
 if st.session_state.page == 'login':
