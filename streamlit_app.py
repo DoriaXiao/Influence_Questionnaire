@@ -46,8 +46,19 @@ def show_progress():
         "login": 0, "sample_info": 1, "reach": 2,
         "salience": 3, "discursiveness": 4, "values": 5, "summary": 6
     }
+    step_names = {
+        "login": "Login",
+        "sample_info": "Sample Info",
+        "reach": "Reach",
+        "salience": "Salience",
+        "discursiveness": "Discursiveness",
+        "values": "Democratic Values",
+        "summary": "Review & Submit"
+    }
     current = progress_labels.get(st.session_state.page, 0)
+    st.markdown(f"### Step {current + 1} of {len(pages)}: {step_names.get(st.session_state.page, '')}")
     st.progress((current + 1) / len(pages))
+
 
 
 
@@ -100,16 +111,44 @@ def page_login():
             st.session_state.page = 'sample_info'
             st.experimental_rerun()
 
+# Country-specific media sample lists
+MEDIA_SAMPLES = {
+    "Tunisia": [
+        "Midi Show - Mosaique FM", "Huna Tounes - Diwan FM", "Studio Watania - Radio National",
+        "RDV9 - Attesia", "Watania News - Watania 1", "Hadath w Tahlil - Watania 1", "Nawaat platform",
+        "Alqatiba", "Inqifada", "Legal Agenda", "Wasiat Wsaa - وصية وسع", "Podcast Wqayitk (Alert)",
+        "Assabah", "Al Jumhouria", "Al Maghreb", "Presidence Tunisie", "Moncef Marzouki", "Thamer Bdida",
+        "Harak 25 Juilia", "Rassd Tunisia", "Haythem El Mekki", "Soumaya Ghanoushi", "Samir Elwafi",
+        "Maya Kssouri", "Zied El-Heni", "Olfa Hamdi", "Weather Report (Control Sample)", "La Press",
+        "Tunisie Numerique"
+    ],
+    "Lebanon": [
+        "Sar Elwaqt - MTV", "Electing President coverage - MTV", "News bulletin - MTV", "Vision 2030 - LBCI",
+        "News bulletin - Al Jadeed", "Niqach - Almayadeen", "Al Haki Be Siase - Voice of Lebanon",
+        "Hiwar Masoul", "Bint Jbeil", "Sawt Beirut International", "ALAKHBAR (Newspaper)", "Annahar Newspaper",
+        "Legal Agenda", "Daraj Media", "Megaphone", "Political Pen", "Walid Joumblatt", "Samir Geagea",
+        "Hosm Matar", "Leila Nicolas", "Ghassan Saoud", "Jamil El Sayyed", "Nawaf Salam", "Radwan Mortada",
+        "Weather Report (Control sample)"
+    ]
+}
+
 # --- Page: Sample Info ---
 def page_sample_info():
+    show_progress()
     st.title("🎯 Sample Information")
+    
+    country = st.session_state.get("country", "Tunisia")  # fallback for safety
+    sample_options = MEDIA_SAMPLES.get(country, [])
+    
     st.session_state.sample = {
-        "title": st.text_input("Media Title or Description"),
+        "country": country,
+        "title": st.selectbox("Select Media Sample", sample_options),
         "platform": st.text_input("Platform or Outlet"),
         "link": st.text_input("Link (if available)"),
         "transcript": st.text_area("Transcript (paste here if available)"),
         "date": st.date_input("Air/Publication Date", min_value=date(2024, 1, 1))
     }
+
     if st.button("Next: Reach"):
         if not st.session_state.sample["title"].strip() or not st.session_state.sample["platform"].strip():
             st.warning("Media title and platform are required.")
@@ -118,63 +157,86 @@ def page_sample_info():
 
 # --- Page: Reach ---
 def page_reach():
+    show_progress()
+
     st.title("📡 Reach")
     st.markdown("""
-    **Reach** estimates how widely the sample was encountered — not just in raw numbers, but in visibility and amplification.
+How many people likely encountered this media content, and how intensively was it seen or heard?
 
-    Ask yourself:
-    - Was it broadcast nationally?
-    - Was it viral on social media?
-    - Was the platform or speaker well-known?
-    """)
+This score estimates **visibility and audience size** — not just raw numbers, but perceived **prominence or amplification**.
+
+Use your local knowledge to judge:
+- Was it aired on a national TV or radio station?
+- Was it widely shared on social media?
+- Was the speaker or platform well-known?
+""")
+
     st.session_state.sample.update({
-        "reach_score": st.slider("Reach Score (1–100)", 0, 100, 50),
-        "reach_justification": st.text_area("Justify your Reach score")
+        "reach_score": st.slider("Reach Score (0–100)", 0, 100, 50),
+        "reach_justification": st.text_area(
+            "Justification for Reach Score",
+            help="Was it on a major TV station? Did it go viral? Is the speaker a well-known figure?"
+        )
     })
+
     if st.button("Next: Salience"):
         if not st.session_state.sample["reach_justification"].strip():
             st.warning("Please justify the Reach score.")
         else:
             next_page()
 
+
 # --- Page: Salience ---
 def page_salience():
+    show_progress()
+
     st.title("🔥 Salience")
     st.markdown("""
-    **Salience** measures how well the content reflects key public concerns in Tunisia today.
+How well does this sample reflect the major public issues in Tunisia today?
 
-    Think about:
-    - Which issues were addressed?
-    - How central were they?
-    - Was the coverage superficial or in-depth?
-    """)
+This measures **topical relevance** — how directly the content speaks to national or civic concerns.
+""")
+
     st.session_state.sample.update({
-        "salience_score": st.slider("Salience Score (1–100)", 0, 100, 50),
-        "salience_justification": st.text_area("Justify your Salience score")
+        "salience_score": st.slider("Salience Score (0–100)", 0, 100, 50),
+        "salience_justification": st.text_area(
+            "Justification for Salience Score",
+            help="Which issues were discussed? How central were they? Was it surface-level or deeply focused?"
+        )
     })
+
     if st.button("Next: Discursiveness"):
         if not st.session_state.sample["salience_justification"].strip():
             st.warning("Please justify the Salience score.")
         else:
             next_page()
 
+
 # --- Page: Discursiveness ---
 def page_discursiveness():
+    show_progress()
+
     st.title("🧠 Discursiveness")
     st.markdown("""
-    **Discursiveness** is about how the content attempts to influence opinion through:
-    - **Logos**: reasoning, evidence, and structure
-    - **Pathos**: emotional appeal (e.g., empathy, fear, pride)
-    - **Ethos**: the credibility or authority of the speaker/platform
-    """)
+How does the content try to influence opinion?
+
+Evaluate whether it uses **reasoning**, **emotion**, or **credibility** to persuade.
+""")
+
     st.session_state.sample.update({
-        "logos_score": st.slider("Logos (Reasoning) Score", 0, 100, 50),
-        "logos_justification": st.text_area("Justify Logos score"),
-        "pathos_score": st.slider("Pathos (Emotion) Score", 0, 100, 50),
-        "pathos_justification": st.text_area("Justify Pathos score"),
-        "ethos_score": st.slider("Ethos (Credibility) Score", 0, 100, 50),
-        "ethos_justification": st.text_area("Justify Ethos score")
+        "logos_score": st.slider("Logos Score (0–100)", 0, 100, 50,
+            help="How much reasoning, structure, or evidence does the content include?"),
+        "logos_justification": st.text_area("Logos Justification"),
+
+        "pathos_score": st.slider("Pathos Score (0–100)", 0, 100, 50,
+            help="How much emotional appeal is used? (e.g., empathy, outrage, pride)"),
+        "pathos_justification": st.text_area("Pathos Justification"),
+
+        "ethos_score": st.slider("Ethos Score (0–100)", 0, 100, 50,
+            help="How credible or respected is the speaker or platform in this context?"),
+        "ethos_justification": st.text_area("Ethos Justification")
     })
+
     if st.button("Next: Democratic Values"):
         if not all([
             st.session_state.sample["logos_justification"].strip(),
@@ -184,6 +246,7 @@ def page_discursiveness():
             st.warning("All three justifications (Logos, Pathos, Ethos) are required.")
         else:
             next_page()
+
 
 
 # --- Page: Values ---
