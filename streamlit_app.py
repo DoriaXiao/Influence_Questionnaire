@@ -326,6 +326,8 @@ def page_thank_you():
 if st.session_state.get("do_rerun", False):
     st.session_state.do_rerun = False
     st.experimental_rerun()
+    st.stop()  # 🔒 prevent further execution after rerun
+
 
 # --- Page Routing ---
 if st.session_state.page == 'login':
