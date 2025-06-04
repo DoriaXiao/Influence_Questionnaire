@@ -95,29 +95,21 @@ def restart_sequence():
 
 # --- Page: Login ---
 def page_login():
-    st.title("🔐 Researcher Login")
+    name, authentication_status, username = authenticator.login("Login", "main")
 
-    name, auth_status, username = authenticator.login('Login', 'main')
-
-    if auth_status is False:
-        st.error("❌ Username or password is incorrect")
-    elif auth_status is None:
-        st.info("🔑 Please enter your username and password to continue.")
-    elif auth_status:
-        st.success(f"Welcome, {name}!")
-
-        # Ask country only once
+    if authentication_status is False:
+        st.error("Username/password is incorrect")
+    elif authentication_status is None:
+        st.info("Please enter your username and password")
+    elif authentication_status:
+        st.success(f"Welcome {name}!")
         if 'country' not in st.session_state:
             st.session_state.country = st.radio("Which country are you rating samples for?", ["Tunisia", "Lebanon"])
-
         if st.button("Continue"):
-            st.session_state.researcher = {"name": name, "email": f"{username}@example.com"}
+            st.session_state.researcher = {"name": name, "email": f"{username}@placeholder.com"}
             st.session_state.page = 'sample_info'
             st.rerun()
 
-        # Optional: Logout option in sidebar
-        with st.sidebar:
-            authenticator.logout('Logout', 'sidebar')
 
 
 # Country-specific media sample lists
@@ -358,15 +350,16 @@ def page_thank_you():
 # --- Page Routing ---
 if st.session_state.page == 'login':
     page_login()
-elif st.session_state.page == 'sample_info':
-    page_sample_info()
-elif st.session_state.page == 'reach':
-    page_reach()
-elif st.session_state.page == 'salience':
-    page_salience()
-elif st.session_state.page == 'discursiveness':
-    page_discursiveness()
-elif st.session_state.page == 'summary':
-    page_summary()
-elif st.session_state.page == 'thank_you':
-    page_thank_you()
+elif 'researcher' in st.session_state:
+    if st.session_state.page == 'sample_info':
+        page_sample_info()
+    elif st.session_state.page == 'reach':
+        page_reach()
+    elif st.session_state.page == 'salience':
+        page_salience()
+    elif st.session_state.page == 'discursiveness':
+        page_discursiveness()
+    elif st.session_state.page == 'summary':
+        page_summary()
+    elif st.session_state.page == 'thank_you':
+        page_thank_you()
