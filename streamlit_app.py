@@ -3,12 +3,26 @@
 # Deploy it on Streamlit Cloud by pushing to GitHub and connecting your repo at https://streamlit.io/cloud
 # SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
 
+from streamlit_authenticator import Hasher
+
 import streamlit as st
 import pandas as pd
 from datetime import date, datetime
 import os
 import requests
 import json
+
+
+# Define your user credentials (sample - replace with secure storage later)
+names = ['Doria', 'Xingyao']
+usernames = ['doria', 'xiaoxg']
+passwords = ['doria123', 'munathara2025']
+hashed_passwords = Hasher(passwords).generate()
+
+authenticator = Authenticate(
+    names, usernames, hashed_passwords,
+    'influence_cookie', 'random_key', cookie_expiry_days=1
+)
 
 st.set_page_config(page_title="Influence Scoring App", layout="wide")
 
@@ -82,35 +96,29 @@ def restart_sequence():
 # --- Page: Login ---
 def page_login():
     st.title("🔐 Researcher Login")
-    st.markdown("""
-    Welcome to the **Tunisia Media Influence Scoring Questionnaire**.
 
-    This form is part of the *Public Sphere Index* initiative. You’ll assess each media sample using your own informed judgment — no specific data or research is required.
+    name, auth_status, username = authenticator.login('Login', 'main')
 
-    You’ll evaluate:
-    - **Reach** – How widely was this sample seen or shared?
-    - **Salience** – How well does it reflect Tunisia’s top public concerns?
-    - **Discursiveness** – Does it use reasoning, emotion, or credibility to persuade?
+    if auth_status is False:
+        st.error("❌ Username or password is incorrect")
+    elif auth_status is None:
+        st.info("🔑 Please enter your username and password to continue.")
+    elif auth_status:
+        st.success(f"Welcome, {name}!")
 
-    **Score each dimension from 0 to 100.**
+        # Ask country only once
+        if 'country' not in st.session_state:
+            st.session_state.country = st.radio("Which country are you rating samples for?", ["Tunisia", "Lebanon"])
 
-    🟢 *There are no right or wrong answers. Your thoughtful judgment is what matters most.*
-
-    🔁 *Note:* In order to proceed to the next step for each page/section, please click each button **twice quickly** to advance.
-    """)
-
-    name = st.text_input("Your Name")
-    email = st.text_input("Your Email")
-    country = st.radio("Which country are you rating samples for?", ["Tunisia", "Lebanon"])
-
-    if st.button("Continue"):
-        if name.strip() == "" or email.strip() == "":
-            st.warning("Both name and email are required.")
-        else:
-            st.session_state.researcher = {"name": name, "email": email}
-            st.session_state.country = country
+        if st.button("Continue"):
+            st.session_state.researcher = {"name": name, "email": f"{username}@example.com"}
             st.session_state.page = 'sample_info'
-            st.rerun()  # ✅ SAFER than st.experimental_rerun()
+            st.rerun()
+
+        # Optional: Logout option in sidebar
+        with st.sidebar:
+            authenticator.logout('Logout', 'sidebar')
+
 
 # Country-specific media sample lists
 MEDIA_SAMPLES = {
