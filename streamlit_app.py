@@ -325,6 +325,7 @@ def page_thank_you():
     ✅ You may now close this tab or exit the application.
     """)
 
+
 # --- Page Routing ---
 if st.session_state.page == 'login':
     page_login()
@@ -336,8 +337,6 @@ elif st.session_state.page == 'salience':
     page_salience()
 elif st.session_state.page == 'discursiveness':
     page_discursiveness()
-elif st.session_state.page == 'values':
-    page_values()
 elif st.session_state.page == 'summary':
     page_summary()
 elif st.session_state.page == 'thank_you':
