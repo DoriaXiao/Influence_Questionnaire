@@ -72,10 +72,13 @@ def next_page():
         st.session_state.page = pages[idx + 1]
 
 def restart_sequence():
+    for key in ["sample", "submitted_flag"]:
+        if key in st.session_state:
+            del st.session_state[key]
     st.session_state.page = 'sample_info'
-    st.session_state.sample = {}
     st.session_state.restart_requested = False
-    st.experimental_rerun()  # Force scroll + reset
+    st.rerun()  # safe rerun
+
 
 
 # --- Page: Login ---
@@ -296,6 +299,9 @@ def page_summary():
         if submitted:
             st.success("Sample submitted to Google Sheet!")
             st.session_state.submitted_flag = True
+        else:
+            st.error("❌ Submission failed. Please check your internet or try again.")
+
 
     if st.session_state.get("submitted_flag"):
         col1, col2 = st.columns(2)
@@ -303,7 +309,7 @@ def page_summary():
             if st.button("✅ Evaluate Another Sample"):
                 st.session_state.restart_requested = True
                 st.session_state.submitted_flag = False
-                st.rerun()  # ✅ safer than experimental_rerun
+                return  # let restart_sequence handle rerun at top of app
         with col2:
             if st.button("🚪 I’ve Completed All My Samples"):
                 st.session_state.page = 'thank_you'
