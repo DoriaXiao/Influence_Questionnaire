@@ -11,10 +11,6 @@ import requests
 import json
 
 st.set_page_config(page_title="Influence Scoring App", layout="wide")
-# --- Safe rerun redirect (called early) ---
-if 'force_rerun_from' in st.session_state:
-    del st.session_state['force_rerun_from']
-    st.experimental_rerun()
 
 st.markdown("""
 <style>
@@ -113,8 +109,7 @@ def page_login():
             st.session_state.researcher = {"name": name, "email": email}
             st.session_state.country = country
             st.session_state.page = 'sample_info'
-            st.session_state.force_rerun_from = 'login'
-            return  # immediately stop further login logic
+            st.rerun()  # ✅ SAFER than st.experimental_rerun()
 
 # Country-specific media sample lists
 MEDIA_SAMPLES = {
@@ -308,6 +303,7 @@ def page_summary():
             if st.button("✅ Evaluate Another Sample"):
                 st.session_state.restart_requested = True
                 st.session_state.submitted_flag = False
+                st.rerun()  # ✅ safer than experimental_rerun
         with col2:
             if st.button("🚪 I’ve Completed All My Samples"):
                 st.session_state.page = 'thank_you'
