@@ -9,6 +9,10 @@ from datetime import date, datetime
 import os
 import requests
 import json
+# --- Safe rerun redirect (called early) ---
+if 'force_rerun_from' in st.session_state:
+    del st.session_state['force_rerun_from']
+    st.experimental_rerun()
 
 st.set_page_config(page_title="Influence Scoring App", layout="wide")
 st.markdown("""
@@ -108,7 +112,8 @@ def page_login():
             st.session_state.researcher = {"name": name, "email": email}
             st.session_state.country = country
             st.session_state.page = 'sample_info'
-            st.session_state.do_rerun = True  # ← set a rerun flag
+            st.session_state.force_rerun_from = 'login'
+            return  # immediately stop further login logic
 
 # Country-specific media sample lists
 MEDIA_SAMPLES = {
