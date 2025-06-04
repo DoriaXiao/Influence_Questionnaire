@@ -108,7 +108,7 @@ def page_login():
             st.session_state.researcher = {"name": name, "email": email}
             st.session_state.country = country
             st.session_state.page = 'sample_info'
-            st.experimental_rerun()
+            st.session_state.do_rerun = True  # ← set a rerun flag
 
 # Country-specific media sample lists
 MEDIA_SAMPLES = {
@@ -322,6 +322,10 @@ def page_thank_you():
 
     ✅ You may now close this tab or exit the application.
     """)
+# --- Safe rerun trigger ---
+if st.session_state.get("do_rerun", False):
+    st.session_state.do_rerun = False
+    st.experimental_rerun()
 
 # --- Page Routing ---
 if st.session_state.page == 'login':
