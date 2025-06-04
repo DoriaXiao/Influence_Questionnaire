@@ -86,14 +86,19 @@ def page_login():
 
     🔁 *Note:* In order to proceed to the next step for each page/section, please click each button **twice quickly** to advance.
     """)
+
     name = st.text_input("Your Name")
     email = st.text_input("Your Email")
+    country = st.radio("Which country are you rating samples for?", ["Tunisia", "Lebanon"])
+
     if st.button("Continue"):
         if name.strip() == "" or email.strip() == "":
             st.warning("Both name and email are required.")
         else:
             st.session_state.researcher = {"name": name, "email": email}
+            st.session_state.country = country
             st.session_state.page = 'sample_info'
+            st.experimental_rerun()
 
 # --- Page: Sample Info ---
 def page_sample_info():
