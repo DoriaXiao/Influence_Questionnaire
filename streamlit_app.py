@@ -251,6 +251,7 @@ Evaluate whether it uses **reasoning**, **emotion**, or **credibility** to persu
             next_page()
 
 
+
 # --- Submit to Google Sheet ---
 def submit_to_google_sheet(data):
     SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
@@ -267,16 +268,20 @@ def submit_to_google_sheet(data):
 
 # --- Page: Summary ---
 def page_summary():
-    show_progress()
-    st.title("📊 Submission Summary")
+    st.markdown("""
+    ### ✅ All done with this media sample!
 
+    If you're ready, please continue by evaluating another sample. Click the button below and enter the next piece of content you’ve been assigned.
+
+    🔁 This helps ensure consistent scoring across your assigned set.
+    """)
+    st.title("📊 Submission Summary")
     sample = st.session_state.sample
     sample["researcher"] = st.session_state.researcher
-
     st.markdown("#### Researcher Info")
     st.text(f"Name: {sample['researcher']['name']}")
     st.text(f"Email: {sample['researcher']['email']}")
-
+    
     st.markdown("#### Scores & Justifications")
     for key, value in sample.items():
         if key == "researcher":
@@ -288,31 +293,24 @@ def page_summary():
             label = key.replace("_justification", "").replace("_", " ").title()
             st.markdown(f"📝 *{label} Justification*: {value}")
 
-    if "submitted_flag" not in st.session_state:
-        st.session_state.submitted_flag = False
 
-    if not st.session_state.submitted_flag:
-        if st.button("✅ Submit Sample"):
-            st.session_state.responses.append(sample)
-            submitted = submit_to_google_sheet(sample)
-            if submitted:
-                st.success("✅ Sample submitted successfully!")
-                st.session_state.submitted_flag = True
-            else:
-                st.error("❌ Submission failed. Please check your internet or Google Sheet configuration.")
+    if st.button("Submit"):
+        st.session_state.responses.append(sample)
+        submitted = submit_to_google_sheet(sample)
+        if submitted:
+            st.success("Sample submitted to Google Sheet!")
+            st.session_state.submitted_flag = True
 
-    if st.session_state.submitted_flag:
+    if st.session_state.get("submitted_flag"):
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("📎 Start Another Sample"):
+            if st.button("✅ Evaluate Another Sample"):
                 st.session_state.restart_requested = True
                 st.session_state.submitted_flag = False
-                return
         with col2:
-            if st.button("🚪 Exit"):
-                st.session_state.page = "thank_you"
+            if st.button("🚪 I’ve Completed All My Samples"):
+                st.session_state.page = 'thank_you'
                 st.session_state.submitted_flag = False
-
 
 
 # --- Handle restart request ---
@@ -329,7 +327,6 @@ def page_thank_you():
 
     ✅ You may now close this tab or exit the application.
     """)
-
 
 # --- Page Routing ---
 if st.session_state.page == 'login':
