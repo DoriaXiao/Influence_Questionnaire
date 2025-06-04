@@ -41,23 +41,20 @@ if 'restart_requested' not in st.session_state:
 
 # --- Navigation ---
 def show_progress():
-    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "values", "summary"]
-    progress_labels = {
-        "login": 0, "sample_info": 1, "reach": 2,
-        "salience": 3, "discursiveness": 4, "values": 5, "summary": 6
-    }
-    step_names = {
+    pages = ["login", "sample_info", "reach", "salience", "discursiveness", "summary"]
+    step_labels = {
         "login": "Login",
         "sample_info": "Sample Info",
         "reach": "Reach",
         "salience": "Salience",
         "discursiveness": "Discursiveness",
-        "values": "Democratic Values",
-        "summary": "Review & Submit"
+        "summary": "Submit"
     }
-    current = progress_labels.get(st.session_state.page, 0)
-    st.markdown(f"### Step {current + 1} of {len(pages)}: {step_names.get(st.session_state.page, '')}")
-    st.progress((current + 1) / len(pages))
+    current = pages.index(st.session_state.page)
+    total = len(pages)
+    st.markdown(f"#### Step {current + 1} of {total}: {step_labels[st.session_state.page]}")
+    st.progress((current + 1) / total)
+
 
 
 
@@ -77,6 +74,8 @@ def restart_sequence():
     st.session_state.page = 'sample_info'
     st.session_state.sample = {}
     st.session_state.restart_requested = False
+    st.experimental_rerun()  # Force scroll + reset
+
 
 # --- Page: Login ---
 def page_login():
@@ -237,7 +236,7 @@ Evaluate whether it uses **reasoning**, **emotion**, or **credibility** to persu
         "ethos_justification": st.text_area("Ethos Justification")
     })
 
-    if st.button("Next: Democratic Values"):
+    if st.button("Next: Summary"):
         if not all([
             st.session_state.sample["logos_justification"].strip(),
             st.session_state.sample["pathos_justification"].strip(),
@@ -247,29 +246,6 @@ Evaluate whether it uses **reasoning**, **emotion**, or **credibility** to persu
         else:
             next_page()
 
-
-
-# --- Page: Values ---
-def page_values():
-    st.title("🏛️ Democratic Values (Score + Justification)")
-    valid = True
-    for value in [
-        "Common Concern", "Aired Arenas", "Pluralism", "Truth",
-        "Civility", "Equal Opportunity", "Efficacy"]:
-        st.session_state.sample[value + "_score"] = st.slider(f"{value} Score", 0, 100, 50, key=value)
-        st.session_state.sample[value + "_justification"] = st.text_area(f"Justify {value}", key=value+'_txt')
-
-    if st.button("Next: Summary"):
-        for value in [
-            "Common Concern", "Aired Arenas", "Pluralism", "Truth",
-            "Civility", "Equal Opportunity", "Efficacy"]:
-            if not st.session_state.sample[value + "_justification"].strip():
-                st.warning(f"Justification for '{value}' is required.")
-                valid = False
-                break
-        if valid:
-            next_page()
-    
 
 # --- Submit to Google Sheet ---
 def submit_to_google_sheet(data):
