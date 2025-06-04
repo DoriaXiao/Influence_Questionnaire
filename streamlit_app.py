@@ -13,12 +13,15 @@ import requests
 import json
 
 
-# Define your user credentials (sample - replace with secure storage later)
+# Define your user credentials
 names = ['Doria', 'Xingyao']
 usernames = ['doria', 'xiaoxg']
 passwords = ['doria123', 'munathara2025']
-hashed_passwords = Hasher(passwords).generate()
 
+# Correct hashing
+hashed_passwords = Hasher().generate(passwords)
+
+# Authenticator instance
 authenticator = Authenticate(
     names, usernames, hashed_passwords,
     'influence_cookie', 'random_key', cookie_expiry_days=1
