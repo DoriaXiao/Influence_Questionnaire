@@ -19,12 +19,6 @@ with open('config.yaml') as file:
 # Pre-hashing all plain text passwords once
 # stauth.Hasher.hash_passwords(config['credentials'])
 
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
-)
 
 try:
     authenticator.experimental_guest_login('Login with Google',
