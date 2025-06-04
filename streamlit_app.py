@@ -137,22 +137,43 @@ MEDIA_SAMPLES = {
 def page_sample_info():
     show_progress()
     st.title("🎯 Sample Information")
-    
+
+    st.markdown("""
+    Please provide information about the media sample you are evaluating.
+    Begin by selecting the sample from the dropdown menu below.
+    """)
+
     country = st.session_state.get("country", "Tunisia")  # fallback for safety
     sample_options = MEDIA_SAMPLES.get(country, [])
-    
+
+    selected_sample = st.selectbox(
+        "🎬 Select Media Sample (required)",
+        sample_options,
+        help="Choose the specific TV, radio, newspaper, or social media item from your assignment."
+    )
+
+    platform = st.text_input(
+        "Platform or Outlet (required)",
+        placeholder="e.g., Mosaique FM, Al Jadeed, Facebook page"
+    )
+
+    link = st.text_input("Link (if available)", placeholder="Paste the article or video URL")
+    transcript = st.text_area("Transcript (paste here if available)")
+    pub_date = st.date_input("Air/Publication Date", min_value=date(2024, 1, 1))
+
+    # Save to session state
     st.session_state.sample = {
         "country": country,
-        "title": st.selectbox("Select Media Sample", sample_options),
-        "platform": st.text_input("Platform or Outlet"),
-        "link": st.text_input("Link (if available)"),
-        "transcript": st.text_area("Transcript (paste here if available)"),
-        "date": st.date_input("Air/Publication Date", min_value=date(2024, 1, 1))
+        "title": selected_sample,
+        "platform": platform,
+        "link": link,
+        "transcript": transcript,
+        "date": pub_date
     }
 
     if st.button("Next: Reach"):
-        if not st.session_state.sample["title"].strip() or not st.session_state.sample["platform"].strip():
-            st.warning("Media title and platform are required.")
+        if not selected_sample.strip() or not platform.strip():
+            st.warning("Please select a media sample and enter the platform or outlet.")
         else:
             next_page()
 
