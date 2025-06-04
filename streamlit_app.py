@@ -3,28 +3,12 @@
 # Deploy it on Streamlit Cloud by pushing to GitHub and connecting your repo at https://streamlit.io/cloud
 # SHEET_URL = "https://script.google.com/macros/s/AKfycbxM59uBQ5kQ_08-E81gzoOvHGZAYzEzGfp_6jpCZXxXJBNT-KVOV8e8rHtNdnVtDiO1ZA/exec"
 
-from streamlit_authenticator import Hasher, Authenticate
-
 import streamlit as st
 import pandas as pd
 from datetime import date, datetime
 import os
 import requests
 import json
-
-
-# Define your user credentials
-names = ['Doria', 'Xingyao']
-usernames = ['doria', 'xiaoxg']
-hashed_passwords = [
-    '$2b$12$abc123...',  # replace with real hashes
-    '$2b$12$xyz789...'
-]
-
-authenticator = Authenticate(
-    names, usernames, hashed_passwords,
-    'influence_cookie', 'random_key', cookie_expiry_days=1
-)
 
 st.set_page_config(page_title="Influence Scoring App", layout="wide")
 
@@ -97,22 +81,36 @@ def restart_sequence():
 
 # --- Page: Login ---
 def page_login():
-    name, authentication_status, username = authenticator.login("Login", "main")
+    st.title("🔐 Researcher Login")
+    st.markdown("""
+    Welcome to the **Tunisia Media Influence Scoring Questionnaire**.
 
-    if authentication_status is False:
-        st.error("Username/password is incorrect")
-    elif authentication_status is None:
-        st.info("Please enter your username and password")
-    elif authentication_status:
-        st.success(f"Welcome {name}!")
-        if 'country' not in st.session_state:
-            st.session_state.country = st.radio("Which country are you rating samples for?", ["Tunisia", "Lebanon"])
-        if st.button("Continue"):
-            st.session_state.researcher = {"name": name, "email": f"{username}@placeholder.com"}
+    This form is part of the *Public Sphere Index* initiative. You’ll assess each media sample using your own informed judgment — no specific data or research is required.
+
+    You’ll evaluate:
+    - **Reach** – How widely was this sample seen or shared?
+    - **Salience** – How well does it reflect Tunisia’s top public concerns?
+    - **Discursiveness** – Does it use reasoning, emotion, or credibility to persuade?
+
+    **Score each dimension from 0 to 100.**
+
+    🟢 *There are no right or wrong answers. Your thoughtful judgment is what matters most.*
+
+    🔁 *Note:* In order to proceed to the next step for each page/section, please click each button **twice quickly** to advance.
+    """)
+
+    name = st.text_input("Your Name")
+    email = st.text_input("Your Email")
+    country = st.radio("Which country are you rating samples for?", ["Tunisia", "Lebanon"])
+
+    if st.button("Continue"):
+        if name.strip() == "" or email.strip() == "":
+            st.warning("Both name and email are required.")
+        else:
+            st.session_state.researcher = {"name": name, "email": email}
+            st.session_state.country = country
             st.session_state.page = 'sample_info'
-            st.rerun()
-
-
+            st.rerun()  # ✅ SAFER than st.experimental_rerun()
 
 # Country-specific media sample lists
 MEDIA_SAMPLES = {
@@ -352,16 +350,15 @@ def page_thank_you():
 # --- Page Routing ---
 if st.session_state.page == 'login':
     page_login()
-elif 'researcher' in st.session_state:
-    if st.session_state.page == 'sample_info':
-        page_sample_info()
-    elif st.session_state.page == 'reach':
-        page_reach()
-    elif st.session_state.page == 'salience':
-        page_salience()
-    elif st.session_state.page == 'discursiveness':
-        page_discursiveness()
-    elif st.session_state.page == 'summary':
-        page_summary()
-    elif st.session_state.page == 'thank_you':
-        page_thank_you()
+elif st.session_state.page == 'sample_info':
+    page_sample_info()
+elif st.session_state.page == 'reach':
+    page_reach()
+elif st.session_state.page == 'salience':
+    page_salience()
+elif st.session_state.page == 'discursiveness':
+    page_discursiveness()
+elif st.session_state.page == 'summary':
+    page_summary()
+elif st.session_state.page == 'thank_you':
+    page_thank_you()
